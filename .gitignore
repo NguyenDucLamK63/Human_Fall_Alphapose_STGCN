@@ -1,0 +1,12 @@
+save/
+*.mp4
+*.avi
+*.png
+*.jpg
+Data/ouput/
+Models/
+Actionsrecognition/saved/
+__pycache__/
+.vscode/
+Actionsrecognition/__pycache__
+note_file/video
