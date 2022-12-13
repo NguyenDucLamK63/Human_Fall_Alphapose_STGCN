@@ -18,7 +18,7 @@ from ActionsEstLoader import TSSTG
 #source = '../Data/test_video/test7.mp4'
 #source = '../Data/falldata/Home/Videos/video (2).avi'  # hard detect
 # source = '../Data/falldata/Home/Videos/video (1).avi'
-source = '/home/duclam/Lam/fall_detection/Human-Falling-Detect-Tracks_2/cam_2_qt.mp4'
+source = '/home/duclam/Lam/fall_detection/Human-Falling-Detect-Tracks_2/kich_ban3people_1.mp4'
 #source = 2
 
 
@@ -112,7 +112,9 @@ if __name__ == '__main__':
     list_action_2 = []
     list_action_3 = []
     fall = np.zeros((50,), dtype = np.int) 
-    flag = [False,False,False,False]
+    flag_1 = False
+    flag_2 = False
+    flag_3 = False
     k = np.zeros((50,), dtype = np.int) 
     while cam.grabbed(): #Return True nếu cam đọc được frame
         f += 1
@@ -161,7 +163,13 @@ if __name__ == '__main__':
             if not track.is_confirmed():
                 continue
             i = i + 1
-            # # track_id = track.track_id
+            if i == 1 :
+                bbox_1 = track.to_tlbr().astype(int)
+            if i == 2 :
+                bbox_2 = track.to_tlbr().astype(int)
+            if i == 3 :
+                bbox_3 = track.to_tlbr().astype(int)
+            # track_id = track.track_id
             track_id = i #track.track_id
             bbox = track.to_tlbr().astype(int)
             center = track.get_center().astype(int)
@@ -180,15 +188,13 @@ if __name__ == '__main__':
                 action_name = action_model.class_names[out[0].argmax()]
                 action_label =out[0].argmax()
                 if i == 1 :
-                    # print("Người thứ nhất : ")
                     if (action_label == 6):
                         if temp[i] == 2:
                             list_action_1.append(temp[i])
-                            # print("list_action 1 :", list_action)
                         fall_down[i] = fall_down[i] + 1
                     if(action_label != temp[i]):
                         fall[i] = fall_down[i]
-                        print("fall[i] ////////////////////////////////////// :",fall[i])
+                        print(f'LamND: fall[{i}] : {fall[i]}')
                         if 10 <= fall[i] <= 40 :
                             if len(list_action_1) !=0 :
                                 if action_label == 3 :
@@ -197,29 +203,31 @@ if __name__ == '__main__':
                                     print("list_action :", list_action_1)
                                     if list_action_1 == [2,6,3]:
                                         print("Nguoi nay dang nam !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
-                                elif action_label != 3 :
+                                        flag_1 = False
+                                        list_action_1 = []
+                                elif  (action_label == 0) | (action_label == 1) | (action_label == 2):
+                                    flag_1 = False
+                                else :
                                     list_action_1 = []
-                                    action_war = "Nguoi thu nhat bi nga !!!"  
-                                    flag[i] = True
-                                    k[i]=0  
+                                    flag_1 = True
+                                    k[i]=0 
+                            elif (action_label == 0) | (action_label == 1) | (action_label == 2):
+                                flag_1 = False
                             else:
-                                action_war = "Nguoi thu nhat bi nga !!!"
-                                flag[i] = True 
+                                flag_1 = True 
                                 k[i]=0 
                         fall_down[i] = 0
-                        # print ("Fal_1 ////////////////////////////////////////////////////////////// : ", fall[i])
                     temp[i] = action_label
+                    print('LamND: Flag_1 : ', flag_1)
                 
                 if i == 2 :
-                    # print("Người thứ nhất : ")
                     if (action_label == 6):
                         if temp[i] == 2:
                             list_action_2.append(temp[i])
-                            # print("list_action 1 :", list_action)
                         fall_down[i] = fall_down[i] + 1
                     if(action_label != temp[i]):
                         fall[i] = fall_down[i]
-                        print("fall[i] ////////////////////////////////////// :",fall[i])
+                        print(f'LamND: fall[{i}] : {fall[i]}')
                         if 10 <= fall[i] <= 40 :
                             if len(list_action_2) !=0 :
                                 if action_label == 3 :
@@ -228,29 +236,32 @@ if __name__ == '__main__':
                                     print("list_action :", list_action_2)
                                     if list_action_2 == [2,6,3]:
                                         print("Nguoi nay dang nam !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
-                                elif action_label != 3 :
+                                        flag_2 = False
+                                        list_action_2 = []
+                                elif  (action_label == 0) | (action_label == 1) | (action_label == 2):
+                                    flag_2 = False
+                                else :
                                     list_action_2 = []
-                                    action_war = "Nguoi thu nhat bi nga !!!"  
-                                    flag[i] = True
-                                    k[i]=0  
+                                    flag_2 = True
+                                    k[i]=0 
+                            elif (action_label == 0) | (action_label == 1) | (action_label == 2):
+                                flag_2 = False
                             else:
-                                action_war = "Nguoi thu nhat bi nga !!!"
-                                flag[i] = True 
+                                flag_2 = True 
                                 k[i]=0 
                         fall_down[i] = 0
-                        # print ("Fal_1 ////////////////////////////////////////////////////////////// : ", fall[i])
                     temp[i] = action_label
+                    print('LamND: Flag_2 : ', flag_2)
                 
                 if i == 3 :
-                    # print("Người thứ nhất : ")
                     if (action_label == 6):
                         if temp[i] == 2:
                             list_action_3.append(temp[i])
-                            # print("list_action 1 :", list_action)
                         fall_down[i] = fall_down[i] + 1
                     if(action_label != temp[i]):
                         fall[i] = fall_down[i]
-                        print("fall[i] ////////////////////////////////////// :",fall[i])
+                        print(f'LamND: fall[{i}] : {fall[i]}')
+                        # print('LamND: fall[i] : ', fall[i])
                         if 10 <= fall[i] <= 40 :
                             if len(list_action_3) !=0 :
                                 if action_label == 3 :
@@ -259,19 +270,22 @@ if __name__ == '__main__':
                                     print("list_action :", list_action_3)
                                     if list_action_3 == [2,6,3]:
                                         print("Nguoi nay dang nam !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
-                                elif action_label != 3 :
+                                        flag_3 = False
+                                        list_action_3 = []
+                                elif  (action_label == 0) | (action_label == 1) | (action_label == 2):
+                                    flag_3 = False
+                                else :
                                     list_action_3 = []
-                                    action_war = "Nguoi thu nhat bi nga !!!"  
-                                    flag[i] = True
-                                    k[i]=0  
+                                    flag_3 = True
+                                    k[i]=0 
+                            elif (action_label == 0) | (action_label == 1) | (action_label == 2):
+                                flag_3 = False
                             else:
-                                action_war = "Nguoi thu nhat bi nga !!!"
-                                flag[i] = True 
+                                flag_3 = True 
                                 k[i]=0 
                         fall_down[i] = 0
-                        # print ("Fal_1 ////////////////////////////////////////////////////////////// : ", fall[i])
                     temp[i] = action_label
-                    
+                    print('LamND: Flag_3 : ', flag_3)
                 # action = '{}: {:.2f}%'.format(action_name, (out[0].max() * 100) + 20)
                 action = '{}:'.format(action_name)
                 # print('action_name : ',action_name)
@@ -280,7 +294,6 @@ if __name__ == '__main__':
                     clr = (255, 0, 0) #red
                 elif action_name == 'Lying Down':
                     clr = (255, 200, 0)
-                action_war = '{}:'.format(action_war)
             # VISUALIZE.
             if track.time_since_update == 0:
                 if args.show_skeleton:
@@ -292,13 +305,23 @@ if __name__ == '__main__':
                                     0.4, clr, 1)
                 # frame = cv2.putText(frame, action_war, (bbox[0] + 30, bbox[1] + 45), cv2.FONT_HERSHEY_COMPLEX,
                 #                     0.4, clr_war, 1)
-                print("flag[i] : ---------------------------------------",flag[i])
-                if flag[i] == True :
-                    frame = cv2.putText(frame, 'Co nguoi nga !!!', (bbox[0] - 5, bbox[1] - 10), cv2.FONT_HERSHEY_COMPLEX,
+                if flag_1 == True :
+                    frame = cv2.putText(frame, 'Co nguoi nga !!!', (bbox_1[0] - 5, bbox_1[1] - 10), cv2.FONT_HERSHEY_COMPLEX,
                                     0.4, clr_war, 1)
-                    if k[i] == 100 :
-                        # print("co nhay vao hay khong")
-                        flag[i] = False
+                    if k[i] == 40 :
+                        flag_1 = False
+                        k[i]=0
+                if flag_2 == True :
+                    frame = cv2.putText(frame, 'Co nguoi nga !!!', (bbox_2[0] - 5, bbox_2[1] - 10), cv2.FONT_HERSHEY_COMPLEX,
+                                    0.4, clr_war, 1)
+                    if k[i] == 40 :
+                        flag_2 = False
+                        k[i]=0
+                if flag_3 == True :
+                    frame = cv2.putText(frame, 'Co nguoi nga !!!', (bbox_3[0] - 5, bbox_3[1] - 10), cv2.FONT_HERSHEY_COMPLEX,
+                                    0.4, clr_war, 1)
+                    if k[i] == 40 :
+                        flag_3 = False
                         k[i]=0
             k[i] = k[i] + 1               
         FPS = 1.0 / (time.time() - fps_time)
