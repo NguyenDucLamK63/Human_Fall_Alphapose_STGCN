@@ -37,6 +37,8 @@ class Detection(object):
         """Get (top, left, width, height).
         """
         ret = self.tlbr.copy()
+        # print("ret[2:] :", ret[2:].shape)
+        # print("ret[:2] :", ret[:2].shape)
         ret[2:] = ret[2:] - ret[:2]
         return ret
 
@@ -139,7 +141,7 @@ class Tracker:
         Parameters
         ----------
         detections : List[deep_sort.detection.Detection]
-            A list of detections at the current time step.
+            A list of detections at the current time step. 
         """
         # Run matching cascade.
         matches, unmatched_tracks, unmatched_detections = self._match(detections)

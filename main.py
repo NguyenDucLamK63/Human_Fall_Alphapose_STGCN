@@ -18,7 +18,7 @@ from ActionsEstLoader import TSSTG
 #source = '../Data/test_video/test7.mp4'
 #source = '../Data/falldata/Home/Videos/video (2).avi'  # hard detect
 # source = '../Data/falldata/Home/Videos/video (1).avi'
-source = '/home/duclam/Lam/fall_detection/Human-Falling-Detect-Tracks_2/lam_fall_cty_6_12_1_persion.mp4'
+source = '/home/duclam/Lam/fall_detection/Human-Falling-Detect-Tracks_2/cam_2_qt.mp4'
 #source = 2
 
 
@@ -48,7 +48,7 @@ if __name__ == '__main__':
                         help='Size of input in detection model in square must be divisible by 32 (int).')
     par.add_argument('--pose_input_size', type=str, default='224x160',
                         help='Size of input in pose model must be divisible by 32 (h, w)')
-    par.add_argument('--pose_backbone', type=str, default='resnet101',
+    par.add_argument('--pose_backbone', type=str, default='resnet50',
                         help='Backbone model for SPPE FastPose model.')
     par.add_argument('--show_detected', default=False, action='store_true',
                         help='Show all bounding box from detection.')
@@ -93,7 +93,6 @@ if __name__ == '__main__':
         # Use normal thread loader for webcam.
         cam = CamLoader(int(cam_source) if cam_source.isdigit() else cam_source,
                         preprocess=preproc).start()
-
     #frame_size = cam.frame_size
     #scf = torch.min(inp_size / torch.FloatTensor([frame_size]), 1)[0]
     # Lưu video output
@@ -106,9 +105,16 @@ if __name__ == '__main__':
     fps_time = 0
     f = 0
     # Trả về True nếu đọc được frame trong queue
-    fall_down = 0
-    Lying_Down = 0
-    while cam.grabbed():
+    fall_down = np.zeros((50,), dtype = np.int) 
+    # Lying_Down = np.zeros((50,), dtype = np.int) 
+    temp = np.zeros((50,), dtype = np.int) 
+    list_action_1 = []
+    list_action_2 = []
+    list_action_3 = []
+    fall = np.zeros((50,), dtype = np.int) 
+    flag = [False,False,False,False]
+    k = np.zeros((50,), dtype = np.int) 
+    while cam.grabbed(): #Return True nếu cam đọc được frame
         f += 1
         #Lấy frame trong queue
         frame = cam.getitem()
@@ -117,20 +123,16 @@ if __name__ == '__main__':
         # Detect humans bbox in the frame with detector model.
         detected = detect_model.detect(frame, need_resize=False, expand_bb=10) #384x384
         # print("type: ", type(detected))
-
         # Predict each tracks bbox of current frame from previous frames information with Kalman filter.
         tracker.predict()
         # Merge two source of predicted bbox together.
-        for track in tracker.tracks:
-            # print("/////////////////////////////////////////////////////////////////////////////////////////")
-            # print("track", track)
+        for track in tracker.tracks: #[]
             det = torch.tensor([track.to_tlbr().tolist() + [0.5, 1.0, 0.0]], dtype=torch.float32)
             detected = torch.cat([detected, det], dim=0) if detected is not None else det
 
-        detections = []  # List of Detections object for tracking.
+        detections = []  # List of Detections object for tracking., Lưu lại các bbox và keypoint (13x3)
         # print("detected[:, 0:4] :" , detected[:, 0:4])
         if detected is not None:
-            # print("True")
             # detected = non_max_suppression(detected[None, :], 0.45, 0.2)[0]
             # Predict skeleton pose of each bboxs.
             poses = pose_model.predict(frame, detected[:, 0:4], detected[:, 4]) # 13x2 (float32)
@@ -143,8 +145,8 @@ if __name__ == '__main__':
                                     np.concatenate((ps['keypoints'].numpy(),
                                                     ps['kp_score'].numpy()), axis=1),
                                     ps['kp_score'].mean().numpy()) for ps in poses]
-            # print("detections", detections)
-
+            # print("detections[0] : ",detections[0])
+            # print("detections[1] : ",detections[1])
             # VISUALIZE.
             if args.show_detected:
                 for bb in detected[:, 0:5]:
@@ -158,13 +160,15 @@ if __name__ == '__main__':
         for i, track in enumerate(tracker.tracks):
             if not track.is_confirmed():
                 continue
-
-            track_id = track.track_id
-            # print("track_id : ", track_id)
+            i = i + 1
+            # # track_id = track.track_id
+            track_id = i #track.track_id
             bbox = track.to_tlbr().astype(int)
             center = track.get_center().astype(int)
 
             action = 'pending..'
+            action_war = ""
+            clr_war = (0,0,0) #black
             clr = (0, 255, 0) #green
             # Use 30 frames time-steps to prediction.
             if len(track.keypoints_list) == 30:
@@ -173,40 +177,110 @@ if __name__ == '__main__':
                 # t : inputs sequence (time steps).,
                 # v : number of graph node (body parts).,
                 # c : channel (x, y, score).,
-                # print("out :", out , '\n')
                 action_name = action_model.class_names[out[0].argmax()]
-                # print("Action_name raw :" , action_name)
                 action_label =out[0].argmax()
-                if (action_label == 6):
-                    fall_down = fall_down + 1
-                    print("fall_down = ",fall_down)
-                if (action_label == 3):
-                    Lying_Down = Lying_Down + 1
-                    print("Lying Down = ",Lying_Down)
-                # if (action_label != 6):
-                #     fall_down = 0
-                # if (action_label != 3):
-                #     Lying_Down = 0
-                    # action_name = "Fall Down"
-                # if  1<=fall_down & Lying_Down >=1 :
-                #     action_name = "Fall Down"
-                #     clr = (255, 0, 0) #red
-                    # print("fall_downfall_downfall_downfall_downfall_downfall_downfall_downfall_downfall_down")
-                    # action = '{}:'.format(action_name)
-                # if  15<=fall_down & Lying_Down >=1 :
-                #     action_name = "Lying Down"
-                #     clr = (255, 200, 0)
-                    # print("Lying DownLying DownLying DownLying DownLying DownLying DownLying DownLying DownLying Down")
-                    # action = '{}:'.format(action_name)
+                if i == 1 :
+                    # print("Người thứ nhất : ")
+                    if (action_label == 6):
+                        if temp[i] == 2:
+                            list_action_1.append(temp[i])
+                            # print("list_action 1 :", list_action)
+                        fall_down[i] = fall_down[i] + 1
+                    if(action_label != temp[i]):
+                        fall[i] = fall_down[i]
+                        print("fall[i] ////////////////////////////////////// :",fall[i])
+                        if 10 <= fall[i] <= 40 :
+                            if len(list_action_1) !=0 :
+                                if action_label == 3 :
+                                    list_action_1.append(temp[i])
+                                    list_action_1.append(action_label)
+                                    print("list_action :", list_action_1)
+                                    if list_action_1 == [2,6,3]:
+                                        print("Nguoi nay dang nam !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
+                                elif action_label != 3 :
+                                    list_action_1 = []
+                                    action_war = "Nguoi thu nhat bi nga !!!"  
+                                    flag[i] = True
+                                    k[i]=0  
+                            else:
+                                action_war = "Nguoi thu nhat bi nga !!!"
+                                flag[i] = True 
+                                k[i]=0 
+                        fall_down[i] = 0
+                        # print ("Fal_1 ////////////////////////////////////////////////////////////// : ", fall[i])
+                    temp[i] = action_label
+                
+                if i == 2 :
+                    # print("Người thứ nhất : ")
+                    if (action_label == 6):
+                        if temp[i] == 2:
+                            list_action_2.append(temp[i])
+                            # print("list_action 1 :", list_action)
+                        fall_down[i] = fall_down[i] + 1
+                    if(action_label != temp[i]):
+                        fall[i] = fall_down[i]
+                        print("fall[i] ////////////////////////////////////// :",fall[i])
+                        if 10 <= fall[i] <= 40 :
+                            if len(list_action_2) !=0 :
+                                if action_label == 3 :
+                                    list_action_2.append(temp[i])
+                                    list_action_2.append(action_label)
+                                    print("list_action :", list_action_2)
+                                    if list_action_2 == [2,6,3]:
+                                        print("Nguoi nay dang nam !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
+                                elif action_label != 3 :
+                                    list_action_2 = []
+                                    action_war = "Nguoi thu nhat bi nga !!!"  
+                                    flag[i] = True
+                                    k[i]=0  
+                            else:
+                                action_war = "Nguoi thu nhat bi nga !!!"
+                                flag[i] = True 
+                                k[i]=0 
+                        fall_down[i] = 0
+                        # print ("Fal_1 ////////////////////////////////////////////////////////////// : ", fall[i])
+                    temp[i] = action_label
+                
+                if i == 3 :
+                    # print("Người thứ nhất : ")
+                    if (action_label == 6):
+                        if temp[i] == 2:
+                            list_action_3.append(temp[i])
+                            # print("list_action 1 :", list_action)
+                        fall_down[i] = fall_down[i] + 1
+                    if(action_label != temp[i]):
+                        fall[i] = fall_down[i]
+                        print("fall[i] ////////////////////////////////////// :",fall[i])
+                        if 10 <= fall[i] <= 40 :
+                            if len(list_action_3) !=0 :
+                                if action_label == 3 :
+                                    list_action_3.append(temp[i])
+                                    list_action_3.append(action_label)
+                                    print("list_action :", list_action_3)
+                                    if list_action_3 == [2,6,3]:
+                                        print("Nguoi nay dang nam !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
+                                elif action_label != 3 :
+                                    list_action_3 = []
+                                    action_war = "Nguoi thu nhat bi nga !!!"  
+                                    flag[i] = True
+                                    k[i]=0  
+                            else:
+                                action_war = "Nguoi thu nhat bi nga !!!"
+                                flag[i] = True 
+                                k[i]=0 
+                        fall_down[i] = 0
+                        # print ("Fal_1 ////////////////////////////////////////////////////////////// : ", fall[i])
+                    temp[i] = action_label
+                    
                 # action = '{}: {:.2f}%'.format(action_name, (out[0].max() * 100) + 20)
                 action = '{}:'.format(action_name)
                 # print('action_name : ',action_name)
-                # print("action : ", action,"\n")
+                print("action : ", action,"\n")
                 if action_name == 'Fall Down':
                     clr = (255, 0, 0) #red
                 elif action_name == 'Lying Down':
                     clr = (255, 200, 0)
-
+                action_war = '{}:'.format(action_war)
             # VISUALIZE.
             if track.time_since_update == 0:
                 if args.show_skeleton:
@@ -216,8 +290,19 @@ if __name__ == '__main__':
                                     0.4, (255, 0, 0), 2)
                 frame = cv2.putText(frame, action, (bbox[0] + 5, bbox[1] + 15), cv2.FONT_HERSHEY_COMPLEX,
                                     0.4, clr, 1)
+                # frame = cv2.putText(frame, action_war, (bbox[0] + 30, bbox[1] + 45), cv2.FONT_HERSHEY_COMPLEX,
+                #                     0.4, clr_war, 1)
+                print("flag[i] : ---------------------------------------",flag[i])
+                if flag[i] == True :
+                    frame = cv2.putText(frame, 'Co nguoi nga !!!', (bbox[0] - 5, bbox[1] - 10), cv2.FONT_HERSHEY_COMPLEX,
+                                    0.4, clr_war, 1)
+                    if k[i] == 100 :
+                        # print("co nhay vao hay khong")
+                        flag[i] = False
+                        k[i]=0
+            k[i] = k[i] + 1               
         FPS = 1.0 / (time.time() - fps_time)
-        print("FPS : ", FPS, '\n')
+        # print("FPS : ", FPS, '\n')
         # Show Frame.
         frame = cv2.resize(frame, (0, 0), fx=2., fy=2.)
         frame = cv2.putText(frame, '%d, FPS: %f' % (f, 1.0 / (time.time() - fps_time)),
