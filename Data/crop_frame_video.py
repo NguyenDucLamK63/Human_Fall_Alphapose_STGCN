@@ -9,11 +9,11 @@ def parse_args():
     #1080x1920x3 size : 6220800
     parser.add_argument(
         '--video',
-        default='/home/duclam/Lam/fall_detection/Human-Falling-Detect-Tracks_2/cam_2_qt.mp4',
+        default='/home/duclam/Documents/dataset_action/UR_Fall_dataset/Fall/test_fall_cam0/fall-01-cam0-rgb.avi',
         help='video file/url')
     parser.add_argument(
     '--folder_video',
-    default='/home/duclam/Documents/dataset_action/Le2i_FDD_fall/coffee_room/Videos',
+    default='/home/duclam/Documents/dataset_action/UR_Fall_dataset/Fall/test_fall_cam0',
     help='video folder')
     parser.add_argument(
         '--device', type=str, default='cuda:0', help='CPU/CUDA device option')

@@ -2,15 +2,15 @@ import cv2
 
 if __name__ == '__main__':
     # img = cv2.imread("/home/duclam/Downloads/lua.jpeg", cv2.IMREAD_COLOR)
-    img = cv2.imread("/home/duclam/Lam/fall_detection/Human-Falling-Detect-Tracks_2/Data/ouput/video (1)/img_000088.jpg", cv2.IMREAD_COLOR)
+    img = cv2.imread("/home/duclam/Lam/fall_detection/Human-Falling-Detect-Tracks_2/Data/ouput/fall-01-cam0-rgb/img_000001.jpg", cv2.IMREAD_COLOR)
     # x1 = 2
     # y1 = 22
     # x2 = 235
     # y2 = 352
-    x1 = 208
-    y1 = 63
-    x2 = 272
-    y2 = 162
+    x1 = 155
+    y1 = -62
+    x2 = 621
+    y2 = 260
     frame = cv2.rectangle(img, (x1,y1)  , (x2,y2) , (255,0,0) , 2)
     scale_percent = 100 # percent of original size
     width = int(img.shape[1] * scale_percent / 100)

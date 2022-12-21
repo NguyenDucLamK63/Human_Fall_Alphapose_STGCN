@@ -18,7 +18,7 @@ from ActionsEstLoader import TSSTG
 #source = '../Data/test_video/test7.mp4'
 #source = '../Data/falldata/Home/Videos/video (2).avi'  # hard detect
 # source = '../Data/falldata/Home/Videos/video (1).avi'
-source = '/home/duclam/Lam/fall_detection/Human-Falling-Detect-Tracks_2/kich_ban3people_1.mp4'
+source = '/home/duclam/Lam/fall_detection/Human-Falling-Detect-Tracks_ver3_yolov5/Fall_1_persion_1_qt.mp4'
 #source = 2
 
 
@@ -115,7 +115,10 @@ if __name__ == '__main__':
     flag_1 = False
     flag_2 = False
     flag_3 = False
-    k = np.zeros((50,), dtype = np.int) 
+    k = np.zeros((50,), dtype = np.int)
+    # bbox_1 = [0,0,0,0] 
+    # bbox_2 = [0,0,0,0]
+    # bbox_3 = [0,0,0,0]
     while cam.grabbed(): #Return True nếu cam đọc được frame
         f += 1
         #Lấy frame trong queue
@@ -124,6 +127,7 @@ if __name__ == '__main__':
         print("Frame : ",f , '\n')
         # Detect humans bbox in the frame with detector model.
         detected = detect_model.detect(frame, need_resize=False, expand_bb=10) #384x384
+        print("detected :", detected)
         # print("type: ", type(detected))
         # Predict each tracks bbox of current frame from previous frames information with Kalman filter.
         tracker.predict()
@@ -131,16 +135,12 @@ if __name__ == '__main__':
         for track in tracker.tracks: #[]
             det = torch.tensor([track.to_tlbr().tolist() + [0.5, 1.0, 0.0]], dtype=torch.float32)
             detected = torch.cat([detected, det], dim=0) if detected is not None else det
-
         detections = []  # List of Detections object for tracking., Lưu lại các bbox và keypoint (13x3)
         # print("detected[:, 0:4] :" , detected[:, 0:4])
         if detected is not None:
             # detected = non_max_suppression(detected[None, :], 0.45, 0.2)[0]
             # Predict skeleton pose of each bboxs.
             poses = pose_model.predict(frame, detected[:, 0:4], detected[:, 4]) # 13x2 (float32)
-            # print("detected[:, 4] :", detected[:, 4])
-            # for i in range(0, 10):
-            #     print("xxx: ", detected[:, 0:i])
 
             # Create Detections object.
             detections = [Detection(kpt2bbox(ps['keypoints'].numpy()),
@@ -207,6 +207,7 @@ if __name__ == '__main__':
                                         list_action_1 = []
                                 elif  (action_label == 0) | (action_label == 1) | (action_label == 2):
                                     flag_1 = False
+                                    print("Vao fall 3")
                                 else :
                                     list_action_1 = []
                                     flag_1 = True
@@ -218,7 +219,7 @@ if __name__ == '__main__':
                                 k[i]=0 
                         fall_down[i] = 0
                     temp[i] = action_label
-                    print('LamND: Flag_1 : ', flag_1)
+                    # print('LamND: Flag_1 : ', flag_1)
                 
                 if i == 2 :
                     if (action_label == 6):
@@ -228,7 +229,7 @@ if __name__ == '__main__':
                     if(action_label != temp[i]):
                         fall[i] = fall_down[i]
                         print(f'LamND: fall[{i}] : {fall[i]}')
-                        if 10 <= fall[i] <= 40 :
+                        if 10 <= fall[i] <= 50 :
                             if len(list_action_2) !=0 :
                                 if action_label == 3 :
                                     list_action_2.append(temp[i])
@@ -251,7 +252,7 @@ if __name__ == '__main__':
                                 k[i]=0 
                         fall_down[i] = 0
                     temp[i] = action_label
-                    print('LamND: Flag_2 : ', flag_2)
+                    # print('LamND: Flag_2 : ', flag_2)
                 
                 if i == 3 :
                     if (action_label == 6):
@@ -262,7 +263,7 @@ if __name__ == '__main__':
                         fall[i] = fall_down[i]
                         print(f'LamND: fall[{i}] : {fall[i]}')
                         # print('LamND: fall[i] : ', fall[i])
-                        if 10 <= fall[i] <= 40 :
+                        if 10 <= fall[i] <= 50 :
                             if len(list_action_3) !=0 :
                                 if action_label == 3 :
                                     list_action_3.append(temp[i])
@@ -285,15 +286,18 @@ if __name__ == '__main__':
                                 k[i]=0 
                         fall_down[i] = 0
                     temp[i] = action_label
-                    print('LamND: Flag_3 : ', flag_3)
+                    # print('LamND: Flag_3 : ', flag_3)
                 # action = '{}: {:.2f}%'.format(action_name, (out[0].max() * 100) + 20)
                 action = '{}:'.format(action_name)
                 # print('action_name : ',action_name)
-                print("action : ", action,"\n")
+                print("LamND : action : ", action,"\n")
                 if action_name == 'Fall Down':
                     clr = (255, 0, 0) #red
                 elif action_name == 'Lying Down':
                     clr = (255, 200, 0)
+            # print('LamND: bbox_1[0] : ', bbox_1[0])
+            # print('LamND: bbox_2[0] : ', bbox_2[0])
+            # print('LamND: bbox_3[0] : ', bbox_3[0])
             # VISUALIZE.
             if track.time_since_update == 0:
                 if args.show_skeleton:
@@ -305,6 +309,7 @@ if __name__ == '__main__':
                                     0.4, clr, 1)
                 # frame = cv2.putText(frame, action_war, (bbox[0] + 30, bbox[1] + 45), cv2.FONT_HERSHEY_COMPLEX,
                 #                     0.4, clr_war, 1)
+            
                 if flag_1 == True :
                     frame = cv2.putText(frame, 'Co nguoi nga !!!', (bbox_1[0] - 5, bbox_1[1] - 10), cv2.FONT_HERSHEY_COMPLEX,
                                     0.4, clr_war, 1)
@@ -325,7 +330,7 @@ if __name__ == '__main__':
                         k[i]=0
             k[i] = k[i] + 1               
         FPS = 1.0 / (time.time() - fps_time)
-        # print("FPS : ", FPS, '\n')
+        print("FPS : ", FPS, '\n')
         # Show Frame.
         frame = cv2.resize(frame, (0, 0), fx=2., fy=2.)
         frame = cv2.putText(frame, '%d, FPS: %f' % (f, 1.0 / (time.time() - fps_time)),

@@ -15,10 +15,10 @@ from PoseEstimateLoader import SPPE_FastPose
 from fn import vis_frame_fast
 import argparse
 
-save_path = '/home/duclam/Documents/dataset_action/Le2i_FDD_fall/Home_test/Home_test_2-pose+score_detect.csv'
+save_path = '/home/duclam/Documents/dataset_action/UR_Fall_dataset/Fall/test_fall_cam0/Fall_UR_3_pose.csv'
 
-annot_file = '/home/duclam/Documents/dataset_action/Le2i_FDD_fall/Home_test/Home_test_2.csv'  # from create_dataset_1.py
-video_folder = '/home/duclam/Documents/dataset_action/Le2i_FDD_fall/Home_test/videos'
+annot_file = '/home/duclam/Documents/dataset_action/UR_Fall_dataset/Fall/test_fall_cam0/Fall_UR_3.csv'  # from create_dataset_1.py
+video_folder = '/home/duclam/Documents/dataset_action/UR_Fall_dataset/Fall/test_fall_cam0'
 annot_folder = ''  # bounding box annotation for each frame.
 # DETECTION MODEL.
 detector = TinyYOLOv3_onecls()
