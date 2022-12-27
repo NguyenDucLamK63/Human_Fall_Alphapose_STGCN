@@ -15,11 +15,11 @@ from PoseEstimateLoader import SPPE_FastPose
 from fn import vis_frame_fast
 import argparse
 
-save_path = '/home/duclam/Documents/dataset_action/UR_Fall_dataset/Fall/test_fall_cam0/Fall_UR_3_pose.csv'
+save_path = '/home/duclam/Documents/dataset_action/Le2i_FDD_fall/Lecture_room/test/Fall_UR_test_pose.csv'
 
-annot_file = '/home/duclam/Documents/dataset_action/UR_Fall_dataset/Fall/test_fall_cam0/Fall_UR_3.csv'  # from create_dataset_1.py
-video_folder = '/home/duclam/Documents/dataset_action/UR_Fall_dataset/Fall/test_fall_cam0'
-annot_folder = ''  # bounding box annotation for each frame.
+annot_file = '/home/duclam/Documents/dataset_action/Le2i_FDD_fall/Lecture_room/test/Fall_UR_test.csv'  # from create_dataset_1.py
+video_folder = '/home/duclam/Documents/dataset_action/Le2i_FDD_fall/Lecture_room/test/video'
+annot_folder = '/home/duclam/Documents/dataset_action/Le2i_FDD_fall/Lecture_room/test/ano'  # bounding box annotation for each frame.
 # DETECTION MODEL.
 detector = TinyYOLOv3_onecls()
 
@@ -58,7 +58,8 @@ for vid in vid_list:
     cur_row = 0
 
     # Bounding Boxs Labels.
-    video_annot = pd.read_csv(os.path.join(annot_folder, vid.split('.')[0]) + '.txt',
+
+    video_annot = pd.read_csv(os.path.join(annot_folder, vid.split('.')[0]) + '.txt',sep=' ',
                               header=None, names=[1, 2, 3, 4, 5, 6])
     video_annot = video_annot.dropna().reset_index(drop=True)
     video_annot_frames = video_annot.iloc[:, 0].tolist()
@@ -89,11 +90,13 @@ for vid in vid_list:
         ret, frame = cap.read()
         if ret:
             frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
-            cls_idx = int(frames_label[frames_label['frame'] == i]['label'])
-
-            bb = np.array(video_annot.iloc[i-1, 2:].astype(int))
-            bb[:2] = np.maximum(0, bb[:2] - 5)
-            bb[2:] = np.minimum(frame_size, bb[2:] + 5) if bb[2:].any() != 0 else bb[2:]
+            try:
+                cls_idx = int(frames_label[frames_label['frame'] == i]['label'])
+                bb = np.array(video_annot.iloc[i-1, 2:].astype(int))
+                bb[:2] = np.maximum(0, bb[:2] - 5)
+                bb[2:] = np.minimum(frame_size, bb[2:] + 5) if bb[2:].any() != 0 else bb[2:]
+            except:
+                continue
 
             result = []
             if bb.any() != 0:

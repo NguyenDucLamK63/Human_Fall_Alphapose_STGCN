@@ -1,4 +1,9 @@
 import os
+os.environ["OMP_NUM_THREADS"] = "1"
+os.environ["OPENBLAS_NUM_THREADS"] = "1"
+os.environ["MKL_NUM_THREADS"] = "1"
+os.environ["VECLIB_MAXIMUM_THREADS"] = "1"
+os.environ["NUMEXPR_NUM_THREADS"] = "1"
 import cv2
 import time
 import torch
@@ -73,7 +78,7 @@ if __name__ == '__main__':
                         help='Save display to video file.')
     # par.add_argument('--device', type=str, default='cuda',
     #                     help='Device to run model on cpu or cuda.')
-    par.add_argument('--yolo_model', nargs='+', type=str, default='yolov5l.pt', help='model.pt path(s)')
+    par.add_argument('--yolo_model', nargs='+', type=str, default='yolov5n.pt', help='model.pt path(s)')
     # par.add_argument('--deep_sort_model', type=str, default='osnet_x0_25')
     par.add_argument('--source', type=str, default='/home/duclam/Lam/fall_detection/Human-Falling-Detect-Tracks_ver3_yolov5/Fall_1_persion_1_qt.mp4', help='source')  # file/folder, 0 for webcam
     par.add_argument('--output', type=str, default='inference/output', help='output folder')  # output folder
@@ -119,6 +124,10 @@ if __name__ == '__main__':
     device = select_device(args.device)
     half &= device.type != 'cpu'  # half precision only supported on CUDA
 
+    # Directories
+    save_dir = increment_path(Path(project) / name, exist_ok=exist_ok)  # increment run
+    save_dir.mkdir(parents=True, exist_ok=True)  # make dir
+
     # Load model
     device = select_device(device)
     model = DetectMultiBackend(yolo_model, device=device, dnn=args.dnn)
@@ -129,6 +138,9 @@ if __name__ == '__main__':
     half &= pt and device.type != 'cpu'  # half precision only supported by PyTorch on CUDA
     if pt:
         model.model.half() if half else model.model.float()
+
+    # Set Dataloader
+    vid_path, vid_writer = None, None
 
     # Dataloader
     if webcam:
@@ -201,7 +213,6 @@ if __name__ == '__main__':
         f = f+1
         print("frame : ", f)
         frame = cam.getitem()
-        img_raw = img.copy()
         img = torch.from_numpy(img).to(device)
         img = img.half() if half else img.float()  # uint8 to fp16/32
         img /= 255.0  # 0 - 255 to 0.0 - 1.0
@@ -209,7 +220,8 @@ if __name__ == '__main__':
             img = img.unsqueeze(0)
 
         # Inference
-        pred = model(img, augment=args.augment) #Thuc hien detect, tim vat theo trong anh
+        visualize = increment_path(save_dir / Path(path).stem, mkdir=True) if args.visualize else False
+        pred = model(img, augment=args.augment, visualize=visualize)
         # Apply NMS, xu ly bounding box
         # preds = non_max_suppression(pred, args.conf_thres, args.iou_thres, args.classes, args.agnostic_nms, max_det=args.max_det)
         preds = non_max_suppression(pred)

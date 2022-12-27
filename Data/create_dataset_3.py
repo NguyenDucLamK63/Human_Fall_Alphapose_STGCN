@@ -15,8 +15,8 @@ main_parts = ['LShoulder_x', 'LShoulder_y', 'RShoulder_x', 'RShoulder_y', 'LHip_
               'RHip_x', 'RHip_y']
 main_idx_parts = [1, 2, 7, 8, -1]  # 1.5
 
-csv_pose_file = '/home/duclam/Documents/dataset_action/Le2i_FDD_fall/Home/Home_FDD_fix_20_fall_pose_101.csv'
-save_path = '/home/duclam/Documents/dataset_action/Le2i_FDD_fall/Home/Home_FDD_fix_20_fall_101.pkl'
+csv_pose_file = '/home/duclam/Documents/dataset_action/Le2i_FDD_fall/Lecture_room/Fall_FDD_lecture_room_pose_224_160_384.csv'
+save_path = '/home/duclam/Documents/dataset_action/Le2i_FDD_fall/Lecture_room/Fall_FDD_lecture_room_pose_224_160_384.pkl'
 
 # Params.
 smooth_labels_step = 8

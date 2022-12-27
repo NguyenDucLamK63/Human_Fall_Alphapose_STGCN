@@ -14,10 +14,10 @@ from Actionsrecognition.Models import *
 from Visualizer import plot_graphs, plot_confusion_metrix
 from sklearn.metrics import f1_score, recall_score, precision_score
 
-save_folder = 'saved/TSSTG_FDD_Home_cafe_20_fall_32_100_42_101'
+save_folder = 'saved/TSSTG_mix_UR_FDD_test_10'
 
 device = 'cuda'
-epochs = 100
+epochs = 10
 batch_size = 32
 
 # DATA FILES.
@@ -35,8 +35,9 @@ batch_size = 32
 # data_files = ['/home/duclam/Documents/dataset_action/Le2i_FDD_fall/Home/Home_FDD.pkl',
 #               '/home/duclam/Documents/dataset_action/Le2i_FDD_fall/coffee_room/Cafe_FDD_61.pkl',
 #               ]
-data_files = ['/home/duclam/Documents/dataset_action/Le2i_FDD_fall/Home/Home_FDD_fix_20_fall_101.pkl',
-              '/home/duclam/Documents/dataset_action/Le2i_FDD_fall/coffee_room/Cafe_FDD_20_fall_101.pkl',
+data_files = ['/home/duclam/Documents/dataset_action/Le2i_FDD_fall/Home/Home_FDD_fix_20.pkl',
+              '/home/duclam/Documents/dataset_action/Le2i_FDD_fall/coffee_room/Cafe_FDD_20_fall.pkl',
+              '/home/duclam/Documents/dataset_action/UR_Fall_dataset/Fall_UR_ver1_pose.pkl',
               ]
 class_names = ['Standing', 'Walking', 'Sitting', 'Lying Down',
                'Stand up','sit down','Fall Down',]
@@ -92,13 +93,13 @@ if __name__ == '__main__':
         os.makedirs(save_folder)
 
     # DATA.
-    train_loader, _ = load_dataset(data_files[0:1], batch_size)
-    valid_loader, train_loader_ = load_dataset(data_files[1:2], batch_size, 0.2)
+    # train_loader, _ = load_dataset(data_files[0:1], batch_size)
+    train_loader, valid_loader = load_dataset(data_files[0:3], batch_size, 0.2)
 
-    train_loader = data.DataLoader(data.ConcatDataset([train_loader.dataset, train_loader_.dataset]),
-                                   batch_size, shuffle=True)
+    # train_loader = data.DataLoader(data.ConcatDataset([train_loader.dataset, train_loader_.dataset]),
+    #                                batch_size, shuffle=True)
     dataloader = {'train': train_loader, 'valid': valid_loader}
-    del train_loader_
+    # del train_loader_
 
     # MODEL.
     graph_args = {'strategy': 'spatial'}

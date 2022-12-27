@@ -23,7 +23,7 @@ def parse_args():
         help='video file/url')
     parser.add_argument(
     '--folder_video',
-    default='/home/duclam/Documents/dataset_action/Home_test/video_test/Videos',
+    default='/home/duclam/Documents/dataset_action/Le2i_FDD_fall/Office',
     help='video folder')
     parser.add_argument(
         '--device', type=str, default='cuda:0', help='CPU/CUDA device option')
@@ -64,7 +64,7 @@ if __name__ == '__main__':
     count = 1
     for filename in sorted(os.listdir((args.folder_video))):
         print(filename) 
-        dst = f"video_{str(count)}.avi"
+        dst = f"Office_video_{str(count)}.avi"
         
         src =f"{args.folder_video}/{filename}"  # foldername/filename, if .py file is outside folder
         dst =f"{args.folder_video}/{dst}"

@@ -141,6 +141,7 @@ if __name__ == '__main__':
             # detected = non_max_suppression(detected[None, :], 0.45, 0.2)[0]
             # Predict skeleton pose of each bboxs.
             poses = pose_model.predict(frame, detected[:, 0:4], detected[:, 4]) # 13x2 (float32)
+            print("poses : ", poses)
 
             # Create Detections object.
             detections = [Detection(kpt2bbox(ps['keypoints'].numpy()),

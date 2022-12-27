@@ -18,7 +18,7 @@ if __name__ == '__main__':
     # bb = detector.detect(frame)[0, :4].numpy().astype(int)
     # print("bb : ", bb)
     # obj = pd.read_pickle(r'/home/duclam/Documents/dataset_action/Le2i_FDD_fall/Home/Home_FDD_init.pkl') #576 , 15 non ==> bỏ non và mỗi class thì lưu lại dạng 30 frame
-    obj = pd.read_pickle(r'/home/duclam/Documents/dataset_action/Le2i_FDD_fall/Home/Home_FDD_fix_20_fall_101.pkl')
+    obj = pd.read_pickle(r'/home/duclam/Documents/dataset_action/Le2i_FDD_fall/Lecture_room/Fall_FDD_lecture_room_pose_224_160_384.pkl')
     # obj = pd.read_pickle(r'/home/duclam/Documents/dataset_action/train.pickle')
     # obj = pd.read_pickle(r'/home/duclam/Documents/dataset_action/Le2i_FDD_fall/Cafe_17_test/Cafe_FDD_17.pkl')
     print(obj) #[0:10882][0:30][0:14][0:3] , float 64 : Home_1  

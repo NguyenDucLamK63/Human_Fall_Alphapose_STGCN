@@ -13,13 +13,13 @@ def parse_args():
         help='video file/url')
     parser.add_argument(
     '--folder_video',
-    default='/home/duclam/Documents/dataset_action/UR_Fall_dataset/Fall/test_fall_cam0',
+    default='/home/duclam/Documents/dataset_action/Le2i_FDD_fall/Lecture_room/Lecture_room',
     help='video folder')
     parser.add_argument(
         '--device', type=str, default='cuda:0', help='CPU/CUDA device option')
     parser.add_argument(
         '--output',
-        default='/home/duclam/Lam/fall_detection/Human-Falling-Detect-Tracks_2/Data/ouput',
+        default='/home/duclam/Documents/dataset_action/Le2i_FDD_fall/Lecture_room/Lecture_room/frame',
         help='output filename')
     parser.add_argument(
         '--output-fps',
@@ -59,11 +59,11 @@ def frame_extraction(video_path,output):
 def main():
     args = parse_args()
     # video_folder = '/home/duclam/Documents/dataset_action/Le2i_FDD_fall/Home/Videos'
-    # for filename in sorted(glob.glob(args.folder_video + '/*.avi')):
-    #     frame_paths, original_frames = frame_extraction(filename,args.output)
-    #     num_frame = len(frame_paths)
-    #     h, w, _ = original_frames[0].shape
-    frame_paths, original_frames = frame_extraction(args.video,args.output)
-    num_frame = len(frame_paths)
+    for filename in sorted(glob.glob(args.folder_video + '/*.avi')):
+        frame_paths, original_frames = frame_extraction(filename,args.output)
+        num_frame = len(frame_paths)
+        h, w, _ = original_frames[0].shape
+    # frame_paths, original_frames = frame_extraction(args.video,args.output)
+    # num_frame = len(frame_paths)
 if __name__ == '__main__':
     main()
