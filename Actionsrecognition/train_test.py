@@ -14,10 +14,10 @@ from Actionsrecognition.Models import *
 from Visualizer import plot_graphs, plot_confusion_metrix
 from sklearn.metrics import f1_score, recall_score, precision_score
 
-save_folder = 'saved/TSSTG_mix_UR_FDD_test_10'
+save_folder = 'saved/TSSTG_Mix_FDD_UR_100_32_0.01_percents_1 '
 
 device = 'cuda'
-epochs = 10
+epochs = 100
 batch_size = 32
 
 # DATA FILES.
@@ -38,13 +38,16 @@ batch_size = 32
 data_files = ['/home/duclam/Documents/dataset_action/Le2i_FDD_fall/Home/Home_FDD_fix_20.pkl',
               '/home/duclam/Documents/dataset_action/Le2i_FDD_fall/coffee_room/Cafe_FDD_20_fall.pkl',
               '/home/duclam/Documents/dataset_action/UR_Fall_dataset/Fall_UR_ver1_pose.pkl',
+              '/home/duclam/Documents/dataset_action/Le2i_FDD_fall/Lecture_room/Fall_FDD_lecture_room_pose_224_160_384.pkl',
+              '/home/duclam/Documents/dataset_action/Le2i_FDD_fall/Office/Fall_FDD_office_room_pose_224_160_384.pkl',
               ]
+# data_files = ['/home/duclam/Documents/dataset_action/UR_Fall_dataset/Fall_UR_ver1_pose.pkl',]
 class_names = ['Standing', 'Walking', 'Sitting', 'Lying Down',
                'Stand up','sit down','Fall Down',]
 num_class = len(class_names)
 
 
-def load_dataset(data_files, batch_size, split_size=0):
+def load_dataset(data_files, batch_size, split_size=0.2):
     """Load data files into torch DataLoader with/without spliting train-test.
     """
     features, labels = [], []
@@ -94,7 +97,7 @@ if __name__ == '__main__':
 
     # DATA.
     # train_loader, _ = load_dataset(data_files[0:1], batch_size)
-    train_loader, valid_loader = load_dataset(data_files[0:3], batch_size, 0.2)
+    train_loader, valid_loader = load_dataset(data_files[0:5], batch_size, 0.2)
 
     # train_loader = data.DataLoader(data.ConcatDataset([train_loader.dataset, train_loader_.dataset]),
     #                                batch_size, shuffle=True)
@@ -182,8 +185,9 @@ if __name__ == '__main__':
 
     # EVALUATION.
     model = set_training(model, False)
-    data_file = data_files[1]
+    data_file = data_files[2]
     eval_loader, _ = load_dataset([data_file], 32)
+    
 
     print('Evaluation.')
     run_loss = 0.0
@@ -215,10 +219,14 @@ if __name__ == '__main__':
     run_loss = run_loss / len(iterator)
     run_accu = run_accu / len(iterator)
 
-    plot_confusion_metrix(y_trues, y_preds, class_names, 'Eval on: {}\nLoss: {:.4f}, Accu{:.4f}'.format(
-        os.path.basename(data_file), run_loss, run_accu
+    plot_confusion_metrix(y_trues, y_preds, class_names, 'Eval on: {}\nLoss: {:.4f}, Accu : {:.4f}'.format(
+        os.path.basename("Confusion_matrix_UR_FDD_percents"), run_loss, run_accu
     ), 'true', save=os.path.join(save_folder, '{}-confusion_matrix.png'.format(
-        os.path.basename(data_file).split('.')[0])))
+        os.path.basename("Confusion_matrix_UR_FDD_percents"))), percents=True)
+    plot_confusion_metrix(y_trues, y_preds, class_names, 'Eval on: {}\nLoss: {:.4f}, Accu : {:.4f}'.format(
+        os.path.basename("Confusion_matrix_UR_FDD"), run_loss, run_accu
+    ), 'true', save=os.path.join(save_folder, '{}-confusion_matrix.png'.format(
+        os.path.basename("Confusion_matrix_UR_FDD"))), percents= False)
     # plot_confusion_metrix(y_trues, y_preds, 'Eval on: {}\nLoss: {:.4f}, Accu{:.4f}'.format(
     #     os.path.basename(data_file), run_loss, run_accu
     # ), 'true', save=os.path.join(save_folder, '{}-confusion_matrix.png'.format(
