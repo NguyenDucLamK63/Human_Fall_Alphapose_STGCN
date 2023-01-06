@@ -17,8 +17,8 @@ import matplotlib.pyplot as plt
 class_names = ['Standing', 'Walking', 'Sitting', 'Lying Down',
                'Stand up', 'Sit down', 'Fall Down',]  # label.
 
-video_folder = '/home/duclam/Documents/dataset_action/Le2i_FDD_fall/Lecture_room/test/video'
-annot_file = '/home/duclam/Documents/dataset_action/Le2i_FDD_fall/Lecture_room/test/video/Fall_FDD_lecture_room_2.csv'
+video_folder = '/home/duclam/Documents/dataset_action/Le2i_FDD_fall/Office/test'
+annot_file = '/home/duclam/Documents/dataset_action/Le2i_FDD_fall/Office/test/Fall_FDD_office_room_1.csv'
 
 index_video_to_play = 0  # Choose video to play.
 

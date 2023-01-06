@@ -127,7 +127,7 @@ if __name__ == '__main__':
         print("Frame : ",f , '\n')
         # Detect humans bbox in the frame with detector model.
         detected = detect_model.detect(frame, need_resize=False, expand_bb=10) #384x384
-        print("detected :", detected)
+        # print("detected :", detected)
         # print("type: ", type(detected))
         # Predict each tracks bbox of current frame from previous frames information with Kalman filter.
         tracker.predict()
@@ -141,7 +141,7 @@ if __name__ == '__main__':
             # detected = non_max_suppression(detected[None, :], 0.45, 0.2)[0]
             # Predict skeleton pose of each bboxs.
             poses = pose_model.predict(frame, detected[:, 0:4], detected[:, 4]) # 13x2 (float32)
-            print("poses : ", poses)
+            # print("poses : ", poses)
 
             # Create Detections object.
             detections = [Detection(kpt2bbox(ps['keypoints'].numpy()),
@@ -192,12 +192,15 @@ if __name__ == '__main__':
                     if (action_label == 6):
                         if temp[i] == 2:
                             list_action_1.append(temp[i])
+                            print("list_action_1 : ", list_action_1)
                         fall_down[i] = fall_down[i] + 1
                     if(action_label != temp[i]):
-                        fall[i] = fall_down[i]
-                        print(f'LamND: fall[{i}] : {fall[i]}')
+                        fall[i] = fall_down[i] +1
+                        # print(f'LamND: fall[{i}] : {fall[i]}')
                         if 10 <= fall[i] <= 40 :
                             if len(list_action_1) !=0 :
+                                if (action_label != 3) :
+                                    list_action_1 = []
                                 if action_label == 3 :
                                     list_action_1.append(temp[i])
                                     list_action_1.append(action_label)
@@ -228,10 +231,14 @@ if __name__ == '__main__':
                             list_action_2.append(temp[i])
                         fall_down[i] = fall_down[i] + 1
                     if(action_label != temp[i]):
-                        fall[i] = fall_down[i]
+                        if (action_label !=3) :
+                            list_action_2 = []
+                        fall[i] = fall_down[i] +1
                         print(f'LamND: fall[{i}] : {fall[i]}')
                         if 10 <= fall[i] <= 50 :
                             if len(list_action_2) !=0 :
+                                if (action_label != 3) :
+                                    list_action_2 = []
                                 if action_label == 3 :
                                     list_action_2.append(temp[i])
                                     list_action_2.append(action_label)
@@ -261,10 +268,14 @@ if __name__ == '__main__':
                             list_action_3.append(temp[i])
                         fall_down[i] = fall_down[i] + 1
                     if(action_label != temp[i]):
-                        fall[i] = fall_down[i]
+                        if (action_label !=3) :
+                            list_action_1 = []
+                        fall[i] = fall_down[i] +1
                         print(f'LamND: fall[{i}] : {fall[i]}')
                         # print('LamND: fall[i] : ', fall[i])
                         if 10 <= fall[i] <= 50 :
+                            if (action_label != 3) :
+                                list_action_3 = []
                             if len(list_action_3) !=0 :
                                 if action_label == 3 :
                                     list_action_3.append(temp[i])
@@ -274,7 +285,7 @@ if __name__ == '__main__':
                                         print("Nguoi nay dang nam !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
                                         flag_3 = False
                                         list_action_3 = []
-                                elif  (action_label == 0) | (action_label == 1) | (action_label == 2):
+                                elif  (action_label ==   0) | (action_label == 1) | (action_label == 2):
                                     flag_3 = False
                                 else :
                                     list_action_3 = []
@@ -291,7 +302,7 @@ if __name__ == '__main__':
                 # action = '{}: {:.2f}%'.format(action_name, (out[0].max() * 100) + 20)
                 action = '{}:'.format(action_name)
                 # print('action_name : ',action_name)
-                print("LamND : action : ", action,"\n")
+                # print("LamND : action : ", action,"\n")
                 if action_name == 'Fall Down':
                     clr = (255, 0, 0) #red
                 elif action_name == 'Lying Down':

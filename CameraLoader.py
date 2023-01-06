@@ -116,9 +116,7 @@ class CamLoader_Q:
         self.fps = self.stream.get(cv2.CAP_PROP_FPS)
         self.frame_size = (int(self.stream.get(cv2.CAP_PROP_FRAME_WIDTH)),
                            int(self.stream.get(cv2.CAP_PROP_FRAME_HEIGHT)))
-
         # Queue for storing each frames.
-
         self.stopped = False
         self.batch_size = batch_size
         self.Q = Queue(maxsize=queue_size)

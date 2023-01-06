@@ -13,13 +13,13 @@ def parse_args():
         help='video file/url')
     parser.add_argument(
     '--folder_video',
-    default='/home/duclam/Documents/dataset_action/Le2i_FDD_fall/Lecture_room/Lecture_room',
+    default='/home/duclam/Documents/dataset_action/Le2i_FDD_fall/Office',
     help='video folder')
     parser.add_argument(
         '--device', type=str, default='cuda:0', help='CPU/CUDA device option')
     parser.add_argument(
         '--output',
-        default='/home/duclam/Documents/dataset_action/Le2i_FDD_fall/Lecture_room/Lecture_room/frame',
+        default='/home/duclam/Documents/dataset_action/Le2i_FDD_fall/Office/frame',
         help='output filename')
     parser.add_argument(
         '--output-fps',

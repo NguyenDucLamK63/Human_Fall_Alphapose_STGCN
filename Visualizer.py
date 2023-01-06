@@ -134,9 +134,11 @@ def plot_multiImage(images, labels=None, pred=None, title=None, fig_size=(12, 10
 
 
 def plot_confusion_metrix(y_true, y_pred, labels=None, title='', normalize=None,
-                          fig_size=(10, 10), save=None):
+                          fig_size=(10, 10), save=None, percents=True):
     # cm = confusion_matrix(y_true, y_pred, normalize=normalize)
     cm = confusion_matrix(y_true, y_pred)
+    if percents :
+        cm = cm.astype('float') / cm.sum(axis=1)[:, np.newaxis]
     if labels is None:
         labels = list(set(y_true))
 

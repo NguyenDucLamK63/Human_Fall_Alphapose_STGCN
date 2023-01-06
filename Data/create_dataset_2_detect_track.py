@@ -45,10 +45,10 @@ if __name__ == '__main__':
     par.add_argument('--pose_input_size', type=str, default='224x160',
                         help='Size of input in pose model must be divisible by 32 (h, w)')
     args = par.parse_args()
-    save_path = '/home/duclam/Documents/dataset_action/Le2i_FDD_fall/Lecture_room/test/video/Fall_FDD_lecture_room_2_pose_224_160_384.csv'
+    save_path = '/home/duclam/Documents/dataset_action/Le2i_FDD_fall/Office/test/Fall_FDD_office_room_1_pose_224_160_384.csv'
 
-    video_folder = '/home/duclam/Documents/dataset_action/Le2i_FDD_fall/Lecture_room/test/video'
-    annot_file = '/home/duclam/Documents/dataset_action/Le2i_FDD_fall/Lecture_room/test/video/Fall_FDD_lecture_room_2.csv'
+    video_folder = '/home/duclam/Documents/dataset_action/Le2i_FDD_fall/Office/test'
+    annot_file = '/home/duclam/Documents/dataset_action/Le2i_FDD_fall/Office/test/Fall_FDD_office_room_1.csv'
     annot_folder = ''  # bounding box annotation for each frame.
     
     # DETECTION MODEL.

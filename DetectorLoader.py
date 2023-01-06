@@ -9,7 +9,6 @@ from threading import Thread
 from Detection.Models import Darknet
 from Detection.Utils import non_max_suppression, ResizePadding
 
-
 class TinyYOLOv3_onecls(object):
     """Load trained Tiny-YOLOv3 one class (person) detection model.
     Args:

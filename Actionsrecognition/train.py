@@ -12,12 +12,12 @@ from sklearn.model_selection import train_test_split
 
 from Actionsrecognition.Models import *
 from Visualizer import plot_graphs, plot_confusion_metrix
+from sklearn.metrics import f1_score, recall_score, precision_score
 
-
-save_folder = 'saved/TSSTG(pts+mot)-01(cf+hm-hm)_2'
+save_folder = 'saved/TSSTG_Mix_FDD_UR_100_32_0.01_percents_1 '
 
 device = 'cuda'
-epochs = 5
+epochs = 100
 batch_size = 32
 
 # DATA FILES.
@@ -32,15 +32,22 @@ batch_size = 32
 #   channels: Inputs data (x, y and scores), Default: 3
 #   num_class: Number of pose class to train, Default: 7
 
-data_files = ['/home/duclam/Documents/dataset_action/Le2i_FDD_fall/Home_test/Home_test_3.pkl',
-              '/home/duclam/Documents/dataset_action/Le2i_FDD_fall/cafe_test/Cafe_test_10.pkl',
-              '/home/duclam/Documents/dataset_action/Le2i_FDD_fall/Home_01/Home_1_new-set(labelXscrw).pkl',]
+# data_files = ['/home/duclam/Documents/dataset_action/Le2i_FDD_fall/Home/Home_FDD.pkl',
+#               '/home/duclam/Documents/dataset_action/Le2i_FDD_fall/coffee_room/Cafe_FDD_61.pkl',
+#               ]
+data_files = ['/home/duclam/Documents/dataset_action/Le2i_FDD_fall/Home/Home_FDD_fix_20.pkl',
+              '/home/duclam/Documents/dataset_action/Le2i_FDD_fall/coffee_room/Cafe_FDD_20_fall.pkl',
+              '/home/duclam/Documents/dataset_action/UR_Fall_dataset/Fall_UR_ver1_pose.pkl',
+              '/home/duclam/Documents/dataset_action/Le2i_FDD_fall/Lecture_room/Fall_FDD_lecture_room_pose_224_160_384.pkl',
+              '/home/duclam/Documents/dataset_action/Le2i_FDD_fall/Office/Fall_FDD_office_room_pose_224_160_384.pkl',
+              ]
+# data_files = ['/home/duclam/Documents/dataset_action/UR_Fall_dataset/Fall_UR_ver1_pose.pkl',]
 class_names = ['Standing', 'Walking', 'Sitting', 'Lying Down',
-               'Stand up', 'Sit down', 'Fall Down','Intrusion',]
+               'Stand up','sit down','Fall Down',]
 num_class = len(class_names)
 
 
-def load_dataset(data_files, batch_size, split_size=0):
+def load_dataset(data_files, batch_size, split_size=0.2):
     """Load data files into torch DataLoader with/without spliting train-test.
     """
     features, labels = [], []
@@ -54,8 +61,10 @@ def load_dataset(data_files, batch_size, split_size=0):
     labels = np.concatenate(labels, axis=0)
 
     if split_size > 0:
+        # x_train, x_valid, y_train, y_valid = train_test_split(features, labels, test_size=split_size,
+        #                                                       random_state=9)
         x_train, x_valid, y_train, y_valid = train_test_split(features, labels, test_size=split_size,
-                                                              random_state=9)
+                                                              random_state=42)
         train_set = data.TensorDataset(torch.tensor(x_train, dtype=torch.float32).permute(0, 3, 1, 2),
                                        torch.tensor(y_train, dtype=torch.float32))
         valid_set = data.TensorDataset(torch.tensor(x_valid, dtype=torch.float32).permute(0, 3, 1, 2),
@@ -87,20 +96,20 @@ if __name__ == '__main__':
         os.makedirs(save_folder)
 
     # DATA.
-    train_loader, _ = load_dataset(data_files[0:1], batch_size)
-    valid_loader, train_loader_ = load_dataset(data_files[1:2], batch_size, 0.2)
+    # train_loader, _ = load_dataset(data_files[0:1], batch_size)
+    train_loader, valid_loader = load_dataset(data_files[0:5], batch_size, 0.2)
 
-    train_loader = data.DataLoader(data.ConcatDataset([train_loader.dataset, train_loader_.dataset]),
-                                   batch_size, shuffle=True)
+    # train_loader = data.DataLoader(data.ConcatDataset([train_loader.dataset, train_loader_.dataset]),
+    #                                batch_size, shuffle=True)
     dataloader = {'train': train_loader, 'valid': valid_loader}
-    del train_loader_
+    # del train_loader_
 
     # MODEL.
     graph_args = {'strategy': 'spatial'}
     model = TwoStreamSpatialTemporalGraph(graph_args, num_class).to(device)
 
-    #optimizer = torch.optim.Adam(model.parameters(), lr=0.001)
-    optimizer = Adadelta(model.parameters())
+    optimizer = torch.optim.Adam(model.parameters(), lr=0.001)
+    # optimizer = Adadelta(model.parameters())
 
     losser = torch.nn.BCELoss()
 
@@ -176,8 +185,9 @@ if __name__ == '__main__':
 
     # EVALUATION.
     model = set_training(model, False)
-    data_file = data_files[1]
+    data_file = data_files[2]
     eval_loader, _ = load_dataset([data_file], 32)
+    
 
     print('Evaluation.')
     run_loss = 0.0
@@ -209,14 +219,20 @@ if __name__ == '__main__':
     run_loss = run_loss / len(iterator)
     run_accu = run_accu / len(iterator)
 
-    plot_confusion_metrix(y_trues, y_preds, class_names, 'Eval on: {}\nLoss: {:.4f}, Accu{:.4f}'.format(
-        os.path.basename(data_file), run_loss, run_accu
+    plot_confusion_metrix(y_trues, y_preds, class_names, 'Eval on: {}\nLoss: {:.4f}, Accu : {:.4f}'.format(
+        os.path.basename("Confusion_matrix_UR_FDD_percents"), run_loss, run_accu
     ), 'true', save=os.path.join(save_folder, '{}-confusion_matrix.png'.format(
-        os.path.basename(data_file).split('.')[0])))
+        os.path.basename("Confusion_matrix_UR_FDD_percents"))), percents=True)
+    plot_confusion_metrix(y_trues, y_preds, class_names, 'Eval on: {}\nLoss: {:.4f}, Accu : {:.4f}'.format(
+        os.path.basename("Confusion_matrix_UR_FDD"), run_loss, run_accu
+    ), 'true', save=os.path.join(save_folder, '{}-confusion_matrix.png'.format(
+        os.path.basename("Confusion_matrix_UR_FDD"))), percents= False)
     # plot_confusion_metrix(y_trues, y_preds, 'Eval on: {}\nLoss: {:.4f}, Accu{:.4f}'.format(
     #     os.path.basename(data_file), run_loss, run_accu
     # ), 'true', save=os.path.join(save_folder, '{}-confusion_matrix.png'.format(
     #     os.path.basename(data_file).split('.')[0])))
-
-
+    # from sklearn.metrics import f1_score, recall_score, precision_score
+    print("precision_score:", precision_score(y_true=y_trues, y_pred=y_preds, average='weighted'))
+    print("recall_score:", recall_score(y_true=y_trues, y_pred=y_preds, average='weighted'))
+    print("f1_score:", f1_score(y_true=y_trues, y_pred=y_preds, average='weighted'))
     print('Eval Loss: {:.4f}, Accu: {:.4f}'.format(run_loss, run_accu))

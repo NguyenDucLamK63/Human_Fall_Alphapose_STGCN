@@ -14,7 +14,8 @@ from Actionsrecognition.Models import *
 from Visualizer import plot_graphs, plot_confusion_metrix
 from sklearn.metrics import f1_score, recall_score, precision_score
 
-save_folder = 'saved/TSSTG_Mix_FDD_UR_100_32_0.01_percents_1 '
+save_folder = 'saved/TSSTG_Mix_FDD_UR_100_32_0.01_percents_2_test_full'
+# save_folder = 'saved/test'
 
 device = 'cuda'
 epochs = 100
@@ -35,8 +36,8 @@ batch_size = 32
 # data_files = ['/home/duclam/Documents/dataset_action/Le2i_FDD_fall/Home/Home_FDD.pkl',
 #               '/home/duclam/Documents/dataset_action/Le2i_FDD_fall/coffee_room/Cafe_FDD_61.pkl',
 #               ]
-data_files = ['/home/duclam/Documents/dataset_action/Le2i_FDD_fall/Home/Home_FDD_fix_20.pkl',
-              '/home/duclam/Documents/dataset_action/Le2i_FDD_fall/coffee_room/Cafe_FDD_20_fall.pkl',
+data_files = ['/home/duclam/Documents/dataset_action/Le2i_FDD_fall/coffee_room/Cafe_FDD_20_fall.pkl',
+              '/home/duclam/Documents/dataset_action/Le2i_FDD_fall/Home/Home_FDD_fix_20.pkl',
               '/home/duclam/Documents/dataset_action/UR_Fall_dataset/Fall_UR_ver1_pose.pkl',
               '/home/duclam/Documents/dataset_action/Le2i_FDD_fall/Lecture_room/Fall_FDD_lecture_room_pose_224_160_384.pkl',
               '/home/duclam/Documents/dataset_action/Le2i_FDD_fall/Office/Fall_FDD_office_room_pose_224_160_384.pkl',
@@ -47,7 +48,7 @@ class_names = ['Standing', 'Walking', 'Sitting', 'Lying Down',
 num_class = len(class_names)
 
 
-def load_dataset(data_files, batch_size, split_size=0.2):
+def load_dataset(data_files, batch_size, val_size = 0.15, testsize = 0.15):
     """Load data files into torch DataLoader with/without spliting train-test.
     """
     features, labels = [], []
@@ -60,23 +61,29 @@ def load_dataset(data_files, batch_size, split_size=0.2):
     features = np.concatenate(features, axis=0)
     labels = np.concatenate(labels, axis=0)
 
-    if split_size > 0:
+    if val_size > 0:
         # x_train, x_valid, y_train, y_valid = train_test_split(features, labels, test_size=split_size,
         #                                                       random_state=9)
-        x_train, x_valid, y_train, y_valid = train_test_split(features, labels, test_size=split_size,
+        x_train, x_valid, y_train, y_valid = train_test_split(features, labels, test_size = val_size + testsize,
+                                                              random_state=42)
+        x_test, x_valid, y_test, y_valid = train_test_split(features, labels, test_size = 0.5,
                                                               random_state=42)
         train_set = data.TensorDataset(torch.tensor(x_train, dtype=torch.float32).permute(0, 3, 1, 2),
                                        torch.tensor(y_train, dtype=torch.float32))
         valid_set = data.TensorDataset(torch.tensor(x_valid, dtype=torch.float32).permute(0, 3, 1, 2),
                                        torch.tensor(y_valid, dtype=torch.float32))
+        test_set = data.TensorDataset(torch.tensor(x_test, dtype=torch.float32).permute(0, 3, 1, 2),
+                                       torch.tensor(y_test, dtype=torch.float32))
         train_loader = data.DataLoader(train_set, batch_size, shuffle=True)
         valid_loader = data.DataLoader(valid_set, batch_size)
+        test_loader = data.DataLoader(test_set, batch_size)
     else:
         train_set = data.TensorDataset(torch.tensor(features, dtype=torch.float32).permute(0, 3, 1, 2),
                                        torch.tensor(labels, dtype=torch.float32))
         train_loader = data.DataLoader(train_set, batch_size, shuffle=True)
         valid_loader = None
-    return train_loader, valid_loader
+        test_loader = None
+    return train_loader, valid_loader, test_loader
 
 
 def accuracy_batch(y_pred, y_true):
@@ -97,7 +104,7 @@ if __name__ == '__main__':
 
     # DATA.
     # train_loader, _ = load_dataset(data_files[0:1], batch_size)
-    train_loader, valid_loader = load_dataset(data_files[0:5], batch_size, 0.2)
+    train_loader, valid_loader, test_loader = load_dataset(data_files[0:5], batch_size, val_size = 0.15, testsize = 0.15)
 
     # train_loader = data.DataLoader(data.ConcatDataset([train_loader.dataset, train_loader_.dataset]),
     #                                batch_size, shuffle=True)
@@ -185,8 +192,8 @@ if __name__ == '__main__':
 
     # EVALUATION.
     model = set_training(model, False)
-    data_file = data_files[2]
-    eval_loader, _ = load_dataset([data_file], 32)
+    # data_file = data_files[2]
+    # eval_loader, _ = load_dataset([data_file], 32)
     
 
     print('Evaluation.')
@@ -194,7 +201,7 @@ if __name__ == '__main__':
     run_accu = 0.0
     y_preds = []
     y_trues = []
-    with tqdm(eval_loader, desc='eval') as iterator:
+    with tqdm(test_loader, desc='eval') as iterator:
         for pts, lbs in iterator:
             mot = pts[:, :2, 1:, :] - pts[:, :2, :-1, :]
             mot = mot.to(device)
@@ -231,8 +238,20 @@ if __name__ == '__main__':
     #     os.path.basename(data_file), run_loss, run_accu
     # ), 'true', save=os.path.join(save_folder, '{}-confusion_matrix.png'.format(
     #     os.path.basename(data_file).split('.')[0])))
-    # from sklearn.metrics import f1_score, recall_score, precision_score
-    print("precision_score:", precision_score(y_true=y_trues, y_pred=y_preds, average='weighted'))
-    print("recall_score:", recall_score(y_true=y_trues, y_pred=y_preds, average='weighted'))
-    print("f1_score:", f1_score(y_true=y_trues, y_pred=y_preds, average='weighted'))
+
+    precision_score = precision_score(y_true=y_trues, y_pred=y_preds, average='weighted')
+    recall_score = recall_score(y_true=y_trues, y_pred=y_preds, average='weighted')
+    f1_score = f1_score(y_true=y_trues, y_pred=y_preds, average='weighted')
+    evaluate_acc = [precision_score , recall_score , f1_score , run_loss , run_accu]
+    name_eval = ["precision_score","recall_score","f1_score","Eval Loss", "Accuracy"]
+    with open(os.path.join(save_folder, 'note_acc.txt'), 'a') as f:
+        # f.write(('%g ' * len(line)).rstrip() % line + '\n')
+        for i  in evaluate_acc:
+            index = evaluate_acc.index(i)
+            f.write(name_eval[index] + " = " + str(i))
+            f.write("\n")
+    f.close()
+    print("precision_score:",precision_score )
+    print("recall_score:", recall_score)
+    print("f1_score:", f1_score)
     print('Eval Loss: {:.4f}, Accu: {:.4f}'.format(run_loss, run_accu))
