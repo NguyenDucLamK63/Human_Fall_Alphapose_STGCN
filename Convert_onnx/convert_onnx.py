@@ -101,13 +101,13 @@ def convert_ONNX_yolov3(model):
     # Export the model   
     torch.onnx.export(model,         # model being run 
          dummy_input,       # model input (or a tuple for multiple inputs) 
-         "/home/duclam/Lam/fall_detection/Human-Falling-Detect-Tracks_2/Models/onnx/yolov3_tiny.onnx",       # where to save the model  
+         "/home/duclam/Lam/fall_detection/Human-Falling-Detect-Tracks_2/Models/onnx/yolov3_tiny_use.onnx",       # where to save the model  
          export_params=True,  # store the trained parameter weights inside the model file 
          opset_version=11,    # the ONNX version to export the model to 
          do_constant_folding=True,  # whether to execute constant folding for optimization 
-         input_names = ['input'],   # the model's input names 
-         output_names = ['output'], # the model's output names 
-         dynamic_axes={'modelInput' : {0 : 'batch_size'},    # variable length axes 
-                                'modelOutput' : {0 : 'batch_size'}}) 
+         input_names = ['input_detect'],   # the model's input names 
+         output_names = ['output_detect']) # the model's output names 
+        #  dynamic_axes={'modelInput' : {0 : 'batch_size'},    # variable length axes 
+        #                         'modelOutput' : {0 : 'batch_size'}}) 
     print(" ") 
     print('Model has been converted to ONNX')

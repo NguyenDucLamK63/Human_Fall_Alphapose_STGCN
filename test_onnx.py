@@ -19,7 +19,6 @@
 # import onnxruntime
 # session = onnxruntime.InferenceSession("/home/duclam/Lam/fall_detection/Human-Falling-Detect-Tracks_2/Models/onnx/yolov3_tiny.onnx",providers=['CUDAExecutionProvider'])
 # results = session.run(['main_output'], {'base_input': frame})
-
 import os
 import cv2
 import time
@@ -42,7 +41,7 @@ from ActionsEstLoader import TSSTG
 #source = '../Data/falldata/Home/Videos/video (2).avi'  # hard detect
 # source = '../Data/falldata/Home/Videos/video (1).avi'
 source = '/home/duclam/Lam/fall_detection/Human-Falling-Detect-Tracks_ver3_yolov5/Fall_1_persion_1_qt.mp4'
-#source = 2
+
 
 
 def preproc(image):
@@ -89,7 +88,7 @@ if __name__ == '__main__':
     inp_dets = args.detection_input_size #384
     # khởi tạo device và image size và khởi tạo mạng darNet cho YoloV3
     # detect_model = TinyYOLOv3_onecls(inp_dets, device=device)
-    session_detect = onnxruntime.InferenceSession("/home/duclam/Lam/fall_detection/Human-Falling-Detect-Tracks_2/Models/onnx/yolov3_tiny.onnx",providers=['CUDAExecutionProvider'])
+    session_detect = onnxruntime.InferenceSession("/home/duclam/Lam/fall_detection/Human-Falling-Detect-Tracks_2/Models/onnx/yolov3_tiny_use.onnx",providers=['CUDAExecutionProvider'])
     # results = session.run(['main_output'], {'base_input': frame})
 
     # POSE MODEL.
@@ -157,7 +156,7 @@ if __name__ == '__main__':
         # detected = session_detect.run(['output'], {'input': frame})
         # detected_1 = torch.tensor(detected)
         # detected_2 = torch.squeeze(detected_1, 0)
-        detected = detect_onnx(session_detect,image, conf_thres = 0.5, nms=0.5 ,input_size = 384 ,expand_bb = 10)
+        detected = detect_onnx(session_detect,image, conf_thres = 0.45, nms = 0.2 ,input_size = 384,expand_bb = 10, need_resize = False)
         print("detected :", detected)
         # print("type: ", type(detected))
         # Predict each tracks bbox of current frame from previous frames information with Kalman filter.

@@ -81,13 +81,17 @@ class TinyYOLOv3_onecls(object):
 
         return detected
 
-def detect_onnx(session_detect,image, conf_thres, nms ,input_size,expand_bb):
+def detect_onnx(session_detect,image, conf_thres = 0.45, nms = 0.2 ,input_size = 384,expand_bb = 10, need_resize = True):
     image_size = (input_size, input_size)
+    if need_resize:
+        image_size = image.shape[:2]
+        resize_fn = ResizePadding(input_size, input_size)
+        image = resize_fn(image)
     transf_fn = transforms.ToTensor()
     image = transf_fn(image)[None, ...]
-    image = image.numpy()
     scf = torch.min(input_size / torch.FloatTensor([image_size]), 1)[0]
-    detected = session_detect.run(['output'], {'input': image})
+    image = image.numpy()
+    detected = session_detect.run(['output_detect'], {'input_detect': image})
     detected = torch.tensor(detected)
     detected = torch.squeeze(detected, 0)
     detected = non_max_suppression(detected, conf_thres, nms)[0]
