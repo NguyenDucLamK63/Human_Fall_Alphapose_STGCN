@@ -14,7 +14,7 @@ from Actionsrecognition.Models import *
 from Visualizer import plot_graphs, plot_confusion_metrix
 from sklearn.metrics import f1_score, recall_score, precision_score
 
-save_folder = 'saved/TSSTG_Mix_FDD_UR_100_32_0.01_percents_2_test_full'
+save_folder = 'saved/TSSTG_Mix_FDD_UR_100_32_0.01_percents_2_test_full_0.1_0.1'
 # save_folder = 'saved/test'
 
 device = 'cuda'
@@ -48,7 +48,7 @@ class_names = ['Standing', 'Walking', 'Sitting', 'Lying Down',
 num_class = len(class_names)
 
 
-def load_dataset(data_files, batch_size, val_size = 0.15, testsize = 0.15):
+def load_dataset(data_files, batch_size, val_size = 0.1, testsize = 0.1):
     """Load data files into torch DataLoader with/without spliting train-test.
     """
     features, labels = [], []

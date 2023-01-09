@@ -14,7 +14,7 @@ from Actionsrecognition.Models import *
 from Visualizer import plot_graphs, plot_confusion_metrix
 from sklearn.metrics import f1_score, recall_score, precision_score
 
-save_folder = 'saved/TSSTG_Mix_FDD_UR_100_32_0.01_percents_1 '
+save_folder = 'saved/TSSTG_Mix_FDD_UR_100_32_0.01_percents_no_test'
 
 device = 'cuda'
 epochs = 100

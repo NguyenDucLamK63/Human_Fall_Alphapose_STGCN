@@ -81,6 +81,25 @@ class TinyYOLOv3_onecls(object):
 
         return detected
 
+def detect_onnx(session_detect,image, conf_thres, nms ,input_size,expand_bb):
+    image_size = (input_size, input_size)
+    transf_fn = transforms.ToTensor()
+    image = transf_fn(image)[None, ...]
+    image = image.numpy()
+    scf = torch.min(input_size / torch.FloatTensor([image_size]), 1)[0]
+    detected = session_detect.run(['output'], {'input': image})
+    detected = torch.tensor(detected)
+    detected = torch.squeeze(detected, 0)
+    detected = non_max_suppression(detected, conf_thres, nms)[0]
+    if detected is not None:
+        detected[:, [0, 2]] -= (input_size - scf * image_size[1]) / 2
+        detected[:, [1, 3]] -= (input_size - scf * image_size[0]) / 2
+        detected[:, 0:4] /= scf
+
+        detected[:, 0:2] = np.maximum(0, detected[:, 0:2] - expand_bb)
+        detected[:, 2:4] = np.minimum(image_size[::-1], detected[:, 2:4] + expand_bb)
+
+    return detected
 
 class ThreadDetection(object):
     def __init__(self,
