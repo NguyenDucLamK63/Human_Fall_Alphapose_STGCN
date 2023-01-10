@@ -99,12 +99,18 @@
 
 
 
-# # print(tg)
-import cv2
-img = "/home/duclam/Lam/fall_detection/Human-Falling-Detect-Tracks_2/Data/ouput/test_cty_23_11_2person/img_000024.jpg"
-img = cv2.imread(img, cv2.IMREAD_COLOR)
-print(img.shape)
-img = img.swapaxes(1, 2).swapaxes(0, 1)
-print(img.shape)
-# img = cv2.resize(img, (112, 112))
+# # # print(tg)
+# import cv2
+# img = "/home/duclam/Lam/fall_detection/Human-Falling-Detect-Tracks_2/Data/ouput/test_cty_23_11_2person/img_000024.jpg"
+# img = cv2.imread(img, cv2.IMREAD_COLOR)
 # print(img.shape)
+# img = img.swapaxes(1, 2).swapaxes(0, 1)
+# print(img.shape)
+# # img = cv2.resize(img, (112, 112))
+# # print(img.shape)
+import torch 
+seq_len = torch.randint(1, 5, (1,)).item()
+print(seq_len)
+x = torch.randn(1, 2, 3, seq_len)
+print(x.shape)
+print("xxxxxxxxxxxxxxxxx :", x)

@@ -80,3 +80,17 @@ class InferenNet_fastRes50(nn.Module):
         out = self.pyranet(x)
 
         return out
+
+class InferenNet_fastRes50_onnx(nn.Module):
+    def __init__(self, weights_file='./Models/sppe/fast_res50_256x192.pth'):
+        super().__init__()
+        # khoi tao Fastpose 17 point
+        self.pyranet = FastPose('resnet50', 17)
+        print('Loading pose model from {}'.format(weights_file))
+        self.pyranet.load_state_dict(torch.load(weights_file))
+        self.pyranet.eval()
+
+    def forward(self, x):
+        out = self.pyranet(x)
+
+        return out

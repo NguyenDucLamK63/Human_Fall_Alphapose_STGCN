@@ -203,6 +203,26 @@ class StreamSpatialTemporalGraph(nn.Module):
         x = x.view(x.size(0), -1)
 
         return x
+    # def forward(self, x):
+    #     # data normalization.
+    #     x= x.unsqueeze(0)
+    #     N, C, T, V = x.size()
+    #     x = x.permute(0, 3, 1, 2).contiguous()  # (N, V, C, T)
+    #     x = x.view(N, V * C, T)
+    #     x = self.data_bn(x)
+    #     x = x.view(N, V, C, T)
+    #     x = x.permute(0, 2, 3, 1).contiguous()
+    #     x = x.view(N, C, T, V)
+
+    #     # forward.
+    #     for gcn, importance in zip(self.st_gcn_networks, self.edge_importance):
+    #         x = gcn(x, self.A * importance)
+
+    #     x = F.avg_pool2d(x, x.size()[2:])
+    #     x = self.cls(x)
+    #     x = x.view(x.size(0), -1)
+
+    #     return x
 
 
 class TwoStreamSpatialTemporalGraph(nn.Module):
@@ -249,11 +269,23 @@ class TwoStreamSpatialTemporalGraph(nn.Module):
 
         self.fcn = nn.Linear(256 * 2, num_class)
 
-    def forward(self, inputs):
-        out1 = self.pts_stream(inputs[0])
-        out2 = self.mot_stream(inputs[1])
+    # def forward(self, inputs):
+    #     out1 = self.pts_stream(inputs[0])
+    #     out2 = self.mot_stream(inputs[1])
+
+    #     concat = torch.cat([out1, out2], dim=-1)
+    #     out = self.fcn(concat)
+    #     out = torch.sigmoid(out)
+    #     print("passsssssssssssssssssssssssssssssssss")
+    #     print("out : ",out )
+    #     return out
+    def forward(self, dummy_input_1, dummy_input_2):
+        out1 = self.pts_stream(dummy_input_1)
+        out2 = self.mot_stream(dummy_input_2)
 
         concat = torch.cat([out1, out2], dim=-1)
         out = self.fcn(concat)
-
-        return torch.sigmoid(out)
+        out = torch.sigmoid(out)
+        print("passsssssssssssssssssssssssssssssssss")
+        print("out : ",out )
+        return out

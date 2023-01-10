@@ -37,3 +37,17 @@ class SPPE_FastPose(object):
                                               pose_hm.shape[-2], pose_hm.shape[-1])
         result = pose_nms(bboxs, bboxs_scores, xy_img, scores)
         return result
+def pose_predict(session_pose,image,bboxs, bboxs_scores,inp_h,inp_w):
+    inps, pt1, pt2 = crop_dets(image, bboxs, inp_h, inp_w)
+    # pose_hm = self.model(inps.to(self.device)).cpu().data
+    inps = inps.numpy()
+    pose_hm = session_pose.run(['output_pose_1'], {'input_pose_1': inps})
+    # Cut eyes and ears.
+    pose_hm = torch.tensor(pose_hm)
+    pose_hm = torch.squeeze(pose_hm, 0)
+    pose_hm = torch.cat([pose_hm[:, :1, ...], pose_hm[:, 5:, ...]], dim=1)
+
+    xy_hm, xy_img, scores = getPrediction(pose_hm, pt1, pt2, inp_h, inp_w,
+                                            pose_hm.shape[-2], pose_hm.shape[-1])
+    result = pose_nms(bboxs, bboxs_scores, xy_img, scores)
+    return result

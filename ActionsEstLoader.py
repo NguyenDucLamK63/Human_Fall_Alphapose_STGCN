@@ -13,7 +13,7 @@ class TSSTG(object):
         device: (str) Device to load the model on 'cpu' or 'cuda'.
     """
     def __init__(self,
-                 weight_file='/home/duclam/Lam/fall_detection/Human-Falling-Detect-Tracks_2/Actionsrecognition/saved/TSSTG_mix_UR_FDD_100_32_0.01_full/tsstg-model.pth',
+                 weight_file='/home/duclam/Lam/fall_detection/Human-Falling-Detect-Tracks_2/Actionsrecognition/saved/chon_TSSTG_Mix_FDD_UR_100_32_0.01_percents_2_test_full_0.1_0.1/tsstg-model.pth',
                  device='cuda'):
         self.graph_args = {'strategy': 'spatial'}
         self.class_names = ['Standing', 'Walking', 'Sitting', 'Lying Down',
