@@ -269,19 +269,9 @@ class TwoStreamSpatialTemporalGraph(nn.Module):
 
         self.fcn = nn.Linear(256 * 2, num_class)
 
-    # def forward(self, inputs):
-    #     out1 = self.pts_stream(inputs[0])
-    #     out2 = self.mot_stream(inputs[1])
-
-    #     concat = torch.cat([out1, out2], dim=-1)
-    #     out = self.fcn(concat)
-    #     out = torch.sigmoid(out)
-    #     print("passsssssssssssssssssssssssssssssssss")
-    #     print("out : ",out )
-    #     return out
-    def forward(self, dummy_input_1, dummy_input_2):
-        out1 = self.pts_stream(dummy_input_1)
-        out2 = self.mot_stream(dummy_input_2)
+    def forward(self, inputs):
+        out1 = self.pts_stream(inputs[0])
+        out2 = self.mot_stream(inputs[1])
 
         concat = torch.cat([out1, out2], dim=-1)
         out = self.fcn(concat)
@@ -289,3 +279,13 @@ class TwoStreamSpatialTemporalGraph(nn.Module):
         print("passsssssssssssssssssssssssssssssssss")
         print("out : ",out )
         return out
+    # def forward(self, dummy_input_1, dummy_input_2):
+    #     out1 = self.pts_stream(dummy_input_1)
+    #     out2 = self.mot_stream(dummy_input_2)
+
+    #     concat = torch.cat([out1, out2], dim=-1)
+    #     out = self.fcn(concat)
+    #     out = torch.sigmoid(out)
+    #     print("passsssssssssssssssssssssssssssssssss")
+    #     print("out : ",out )
+    #     return out

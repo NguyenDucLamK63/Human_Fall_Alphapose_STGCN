@@ -1,0 +1,3 @@
+pytorch convert STGCN : conda install pytorch==1.12.0 torchvision==0.13.0 torchaudio==0.12.0 cudatoolkit=11.6 -c pytorch -c conda-forge
+pytorch run : 1.9.1
+python : 3.9.5
